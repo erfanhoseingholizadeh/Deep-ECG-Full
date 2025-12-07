@@ -1,0 +1,6 @@
+torch
+numpy
+scipy
+wfdb
+scikit-learn
+tqdm
