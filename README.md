@@ -1,4 +1,3 @@
-```markdown
 # Deep-ECG-Full: Clinical-Grade Arrhythmia Detection System 🫀⚡
 
 ![Python](https://img.shields.io/badge/Python-3.9-3776AB?style=flat&logo=python&logoColor=white)
