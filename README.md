@@ -7,7 +7,7 @@
 
 ## 📋 Executive Summary
 
-This repository hosts an end-to-end Deep Learning pipeline designed to detect cardiac arrhythmias from raw ECG signals. Unlike standard tutorials, this project solves specific **Real-World Engineering Challenges**: class imbalance, signal noise, inter-patient variability, and edge hardware constraints.
+This repository hosts an end-to-end Deep Learning pipeline designed to detect cardiac arrhythmias (specifically Premature Ventricular Contractions) from raw single-lead ECG signals. Unlike standard tutorials, this project solves specific **Real-World Engineering Challenges**: class imbalance, signal noise, inter-patient variability, and edge hardware constraints.
 
 The system features a **Hybrid Dual-Stream Architecture** combining morphological (waveform) and temporal (rhythm) analysis, achieving **93% Clinical Accuracy** on the MIT-BIH Arrhythmia Database. It is containerized via Docker and optimized for embedded deployment (Raspberry Pi/ESP32) using Post-Training Quantization.
 
@@ -52,7 +52,7 @@ To emulate the diagnostic process of a cardiologist, we designed a **Hybrid Neur
 The architecture supports two deployment configurations via toggle switches in `data_loader.py` and `model.py`, allowing a trade-off between **Latency** and **Accuracy**.
 
 * **Mode 1: Diagnostic Mode (Default)**
-    * **Logic:** Uses **Pre-RR** (previous interval) AND **Post-RR** (next interval).
+    * **Logic:** Uses **Pre-RR** (past interval) AND **Post-RR** (future interval).
     * **Latency:** 1-beat lag (~0.8 seconds).
     * **Performance:** Higher Accuracy on PVCs due to detection of the "Compensatory Pause."
 * **Mode 2: Real-Time Mode (Strictly Causal)**
@@ -72,52 +72,70 @@ To enable deployment on microcontrollers:
 
 ### 1. Signal Processing Pipeline
 Before training, raw ECG signals are processed to remove noise and baseline wander.
-![Signal Processing](images/Screenshot%202025-12-06%20100726.png)
+![Signal Processing](images/Live%20Model%20Prediction.png)
 *Figure 1: Comparison of raw noisy signal (red) vs. cleaned signal (blue) after bandpass filtering.*
 
 ### 2. Model Performance (Hybrid CNN - Diagnostic Mode)
 Our primary model achieves robust classification across major arrhythmia classes.
-![Performance Dashboard](images/Screenshot%202025-12-07%20104635.png)
-*Figure 2: (Top Left) Stable loss convergence. (Top Right) >90% Validation Accuracy. (Bottom Left) Confusion Matrix shows high sensitivity to PVCs. (Bottom Right) ROC-AUC of 0.98 confirms robustness.*
+
+**Training Dynamics:**
+![Learning Dynamics](images/Learning%20Dynamics%20(Focal%20Loss).png)
+*Figure 2: Stable loss convergence using Focal Loss.*
+
+**Clinical Accuracy:**
+![Accuracy](images/Clinical%20Accuracy%20Improvement.png)
+*Figure 3: Validation accuracy stabilizes >90% within 10 epochs.*
+
+**Diagnostic Confusion Matrix:**
+![Confusion Matrix](images/Diagnostic%20Confusion%20Matrix.png)
+*Figure 4: Confusion Matrix confirms high sensitivity to Ventricular Ectopy (Class V).*
+
+**Generalization Check:**
+![ROC-AUC](images/Generalization%20(ROC-AUC).png)
+*Figure 5: ROC-AUC of 0.98 indicates excellent class separation.*
 
 ### 3. Real-Time Predictions
 The model provides instant classification on live data streams.
 ![Live Predictions](images/Live%20Model%20Prediction.png)
-*Figure 3: Sample predictions on test data showing accurate detection of Normal beats.*
+*Figure 6: Sample predictions on test data showing accurate detection of Normal beats.*
 
 ### 4. Comparative Analysis: Transformer Architecture
 We benchmarked a Transformer-based architecture against our Hybrid CNN.
 ![Transformer Results](images/Screenshot%202025-12-07%20184525.png)
-*Figure 4: Generalization check (ROC-AUC) for the Transformer model.*
+*Figure 7: Generalization check (ROC-AUC) for the Transformer model.*
 
 **Benchmark Verdict:**
 | Architecture | Accuracy | PVC Recall | Model Size (Int8) | Training Speed | Verdict |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Hybrid CNN (Selected)** | **93%** | **89%** | **15 KB** | Fast (CPU) | ✅ **Deployed** |
-| Transformer (Self-Attention) | 93% | 82% | ~200 KB | Slow (GPU req.) | ❌ Too Heavy |
+| **Hybrid CNN (Selected)** | **93%** | **89%** | **15 KB** | Fast (CPU optimized) | ✅ **Deployed** |
+| Transformer (Self-Attention) | 93% | 82% | ~200 KB | Slow (GPU required) | ❌ Too Heavy |
 
 ---
 
-## 🛠️ Installation & Usage
+## 🛠️ Usage
 
-### Option 1: Docker (Recommended)
-Reproduce the entire experiment in a sealed container without installing dependencies manually.
+### Option A: Using Docker (Recommended)
+This runs the entire pipeline in a sealed, reproducible container.
+
 ```bash
-# Build the container
+# 1. Build the container
 docker build -t deep-ecg .
 
-# Run the training pipeline
+# 2. Run the pipeline
 docker run deep-ecg
 
-# Option 2: Local Python
-# 1. Create Environment
+### Option 2: Local Python
+To run the code directly on your machine (Linux/WSL/Mac):
+
+```bash
+# 1. Create a virtual environment
 python3 -m venv venv
 source venv/bin/activate  # or .\venv\Scripts\activate on Windows
 
 # 2. Install Dependencies
 pip install -r requirements.txt
 
-# 3. Run the pipeline
+# 3. Run the training pipeline
 python main.py
 
 Deep-ECG-Full/
@@ -133,17 +151,14 @@ Deep-ECG-Full/
 ├── Dockerfile                  # Container configuration
 └── images/                     # Visualization assets
 
+License & Attribution
+Software License
+Copyright (c) 2023 Erfan Hoseingholizadeh. This software is distributed under the MIT License. Permission is hereby granted, free of charge, to any person obtaining a copy of this software to deal in the Software without restriction.
 
-Copyright © 2023 Erfan Hoseingholizadeh. This software is distributed under the MIT License.
+Dataset Attribution
+This project utilizes the MIT-BIH Arrhythmia Database provided by PhysioNet (ODC Attribution License).
 
-Dataset
-This project utilizes the MIT-BIH Arrhythmia Database provided by PhysioNet.
-
-Source: https://physionet.org/content/mitdb/
-
-License: ODC Attribution License.
-
-Citations:
+Required Citations:
 
 Moody GB, Mark RG. The impact of the MIT-BIH Arrhythmia Database. IEEE Eng in Med and Biol 20(3):45-50 (May-June 2001).
 
