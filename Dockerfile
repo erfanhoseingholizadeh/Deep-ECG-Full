@@ -26,5 +26,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 # 5. Copy Code
 COPY . /app
 
-# 6. Run the Training Engine
-CMD ["python", "main.py"]
+# 6. Run the API Server
+CMD ["python", "api.py"]

@@ -81,15 +81,13 @@ class MITBIHDataset(Dataset):
                 pre_rr = (peak - prev_peak) / config.FS
                 post_rr = (next_peak - peak) / config.FS
                 
-                # --- [CONFIGURATION SWITCH] ---
-                # MODE 1: DIAGNOSTIC (Default)
-                # Uses future context (post_rr). Higher accuracy, 1-beat latency.
-                self.rhythm_features.append([pre_rr, post_rr])
-                
-                # MODE 2: REAL-TIME (Strictly Causal)
-                # Uncomment lines below for instant detection. (Must also update model.py!)
-                # self.rhythm_features.append([pre_rr]) 
-                # ------------------------------
+                # --- DYNAMIC CONFIGURATION ---
+                if config.DIAGNOSTIC_MODE:
+                    # Diagnostic Mode: Uses Look-ahead (Post-RR)
+                    self.rhythm_features.append([pre_rr, post_rr])
+                else:
+                    # Real-Time Mode: Strictly Causal (Pre-RR only)
+                    self.rhythm_features.append([pre_rr])
 
                 self.samples.append(wave)
                 self.labels.append(config.AAMI_MAPPING[symbol])

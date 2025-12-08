@@ -34,32 +34,25 @@ class HybridECGNet(nn.Module):
             nn.ReLU(),
             nn.MaxPool1d(2),
             
+            # SENIOR FIX: Adaptive Pooling
+            # Forces output to (Batch, 128, 1) regardless of input length
+            nn.AdaptiveAvgPool1d(1),
             nn.Flatten()
         )
         
-        self.cnn_out_dim = 128 * (config.WINDOW_SIZE // 8) 
         
-        # --- [CONFIGURATION SWITCH] ---
+        self.cnn_out_dim = 128
+        
         # BRANCH 2: RHYTHM (Dense Net)
-        # Check data_loader.py! Input dimension must match feature count.
+        # Dynamically set input dimension based on config
+        rhythm_input_dim = 2 if config.DIAGNOSTIC_MODE else 1
         
-        # MODE 1: DIAGNOSTIC (Default) -> Input size 2 (Pre_RR + Post_RR)
         self.rhythm_net = nn.Sequential(
-            nn.Linear(2, 16), 
+            nn.Linear(rhythm_input_dim, 16),
             nn.ReLU(),
             nn.Linear(16, 32),
             nn.ReLU()
         )
-        
-        # MODE 2: REAL-TIME -> Input size 1 (Pre_RR only)
-        # Uncomment below if using strictly causal features
-        # self.rhythm_net = nn.Sequential(
-            # nn.Linear(1, 16),
-            # nn.ReLU(),
-            # nn.Linear(16, 32),
-            # nn.ReLU()
-        # )
-        # ------------------------------
         
         # FUSION HEAD
         self.fusion = nn.Sequential(

@@ -2,11 +2,6 @@
 # Copyright (c) 2023 Erfan Hoseingholizadeh. All Rights Reserved.
 # 
 # This software is distributed under the MIT License.
-# You are free to use, modify, and distribute this software, provided that
-# the above copyright notice and this permission notice appear in all copies.
-# 
-# This project utilizes the MIT-BIH Arrhythmia Database (PhysioNet).
-# See README.md for full data attribution and license details.
 # ==============================================================================
 
 import torch
@@ -56,7 +51,7 @@ def plot_training_results(history, cm, classes, roc_data):
     plt.subplot(2, 2, 1)
     plt.plot(history['train_loss'], label='Training Loss', color='navy')
     plt.plot(history['val_loss'], label='Validation Loss', color='orange', linestyle='--')
-    plt.title('Learning Dynamics (Focal Loss)')
+    plt.title('Learning Dynamics')
     plt.xlabel('Epochs')
     plt.ylabel('Loss')
     plt.legend()
@@ -92,7 +87,8 @@ def plot_training_results(history, cm, classes, roc_data):
     plt.grid(True, alpha=0.3)
 
     plt.tight_layout()
-    plt.show()
+    plt.savefig('images/training_dashboard.png') 
+    print("✅ Dashboard saved to images/training_dashboard.png")
 
 def visualize_samples(model, loader, classes):
     model.eval()
@@ -115,23 +111,32 @@ def visualize_samples(model, loader, classes):
         plt.title(f"True: {classes[label]}\nPred: {classes[pred]}", color=color, fontweight='bold')
         plt.axis('off')
     plt.suptitle("Live Model Predictions (Green=Correct, Red=Error)")
-    plt.show()
+    plt.savefig('images/sample_predictions.png')
 
 def train_engine():
     set_deterministic(config.SEED)
     print(f"--- STARTING HYBRID ECG TRAINING (SEED={config.SEED}) ---")
     
+    # 1. Load Data
     train_loader, test_loader, class_weights = get_loaders()
     model = HybridECGNet().to(config.DEVICE)
     print(f"Model initialized on {config.DEVICE}")
     
-    # RELAXED FOCAL LOSS (Gamma=1.0, No Alpha)
-    criterion = FocalLoss(alpha=None, gamma=1.0)
+    # --- CORRECTION: REMOVE EXPLICIT WEIGHTS ---
+    # We rely on Gamma=2.0 to handle hard examples dynamically.
+    # Adding alpha=class_weights caused the gradient explosion.
+    criterion = FocalLoss(alpha=None, gamma=2.0)
+    
     optimizer = optim.Adam(model.parameters(), lr=config.LEARNING_RATE)
     
-    best_acc = 0.0
+    # Keep the Scheduler (It helps convergence)
+    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=3)
+    
+    best_val_loss = float('inf')
     history = {'train_loss': [], 'val_loss': [], 'val_acc': []}
     
+    os.makedirs('images', exist_ok=True)
+
     for epoch in range(config.EPOCHS):
         model.train()
         running_loss = 0.0
@@ -164,17 +169,19 @@ def train_engine():
         avg_train_loss = running_loss / len(train_loader)
         avg_val_loss = val_loss / len(test_loader)
         
+        scheduler.step(avg_val_loss)
+        
         history['train_loss'].append(avg_train_loss)
         history['val_loss'].append(avg_val_loss)
         history['val_acc'].append(acc)
         
         print(f"Epoch {epoch+1}/{config.EPOCHS} | Train Loss: {avg_train_loss:.4f} | Val Loss: {avg_val_loss:.4f} | Acc: {acc:.2f}%")
         
-        if acc > best_acc:
-            best_acc = acc
+        if avg_val_loss < best_val_loss:
+            best_val_loss = avg_val_loss
             torch.save(model.state_dict(), config.MODEL_SAVE_PATH)
+            print(f"   └── Saved Best Model (Loss: {best_val_loss:.4f})")
 
-    # FINAL METRICS
     print("\n--- CALCULATING FINAL METRICS ---")
     model.load_state_dict(torch.load(config.MODEL_SAVE_PATH))
     y_train, y_train_probs = get_all_predictions(model, train_loader)
@@ -182,9 +189,9 @@ def train_engine():
     
     y_test_pred = np.argmax(y_test_probs, axis=1)
     class_names = ['N', 'S', 'V', 'F', 'Q']
-    print(classification_report(y_test, y_test_pred, target_names=class_names))
+    # zero_division=0 handles the warning gracefully without crashing or spamming logs
+    print(classification_report(y_test, y_test_pred, target_names=class_names, zero_division=0))
     
-    # ROC Calculation
     y_train_bin = label_binarize(y_train, classes=[0, 1, 2, 3, 4])
     y_test_bin = label_binarize(y_test, classes=[0, 1, 2, 3, 4])
     fpr_train, tpr_train, _ = roc_curve(y_train_bin.ravel(), y_train_probs.ravel())
@@ -195,7 +202,6 @@ def train_engine():
     roc_data = {'train_fpr': fpr_train, 'train_tpr': tpr_train, 'train_auc': roc_auc_train,
                 'test_fpr': fpr_test, 'test_tpr': tpr_test, 'test_auc': roc_auc_test}
 
-    # QUANTIZATION
     print("\n--- OPTIMIZING FOR EDGE DEPLOYMENT ---")
     model.to('cpu')
     quantized_model = torch.quantization.quantize_dynamic(model, {nn.Linear}, dtype=torch.qint8)
@@ -205,7 +211,6 @@ def train_engine():
     size_int8 = os.path.getsize(quantized_path)
     print(f"Original: {size_fp32/1024:.2f} KB | Quantized: {size_int8/1024:.2f} KB | Ratio: {size_fp32/size_int8:.2f}x")
 
-    # VISUALIZATION
     print("\nGenerating Dashboard...")
     cm = confusion_matrix(y_test, y_test_pred)
     plot_training_results(history, cm, class_names, roc_data)

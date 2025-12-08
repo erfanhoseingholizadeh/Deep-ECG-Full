@@ -1,6 +1,25 @@
+# --- Core ML & Signal Processing ---
 torch
 numpy
 scipy
 wfdb
 scikit-learn
 tqdm
+pandas
+
+# --- Visualization ---
+matplotlib
+seaborn
+
+# --- API & Backend (FastAPI) ---
+fastapi
+uvicorn
+pydantic
+
+# --- Frontend Dashboard (Streamlit) ---
+streamlit
+requests
+
+# --- Testing ---
+pytest
+httpx

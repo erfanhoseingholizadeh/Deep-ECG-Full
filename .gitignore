@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+*.pth
+mit_db_raw/
+.DS_Store
+.vscode/
+venv/

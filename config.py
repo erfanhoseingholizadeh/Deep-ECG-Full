@@ -37,3 +37,7 @@ BATCH_SIZE = 64
 EPOCHS = 20
 LEARNING_RATE = 0.001
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
+# --- DEPLOYMENT MODE ---
+# Set to True for higher accuracy (uses future context, 1-beat lag)
+# Set to False for instant real-time detection (lower accuracy, 0-beat lag)
+DIAGNOSTIC_MODE = True
