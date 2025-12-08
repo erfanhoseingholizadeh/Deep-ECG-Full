@@ -101,7 +101,6 @@ The model provides instant classification on live data streams.
 
 ### 4. Comparative Analysis: Transformer Architecture
 We benchmarked a Transformer-based architecture against our Hybrid CNN.
-*Figure 7: Generalization check (ROC-AUC) for the Transformer model.*
 
 **Benchmark Verdict:**
 | Architecture | Accuracy | PVC Recall | Model Size (Int8) | Training Speed | Verdict |
