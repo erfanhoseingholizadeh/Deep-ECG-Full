@@ -4,3 +4,4 @@ scipy
 wfdb
 scikit-learn
 tqdm
+seaborn
