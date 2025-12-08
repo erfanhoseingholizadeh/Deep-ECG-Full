@@ -168,3 +168,15 @@ Required Citations:
 Moody GB, Mark RG. The impact of the MIT-BIH Arrhythmia Database. IEEE Eng in Med and Biol 20(3):45-50 (May-June 2001).
 
 Goldberger AL, et al. PhysioBank, PhysioToolkit, and PhysioNet: Components of a new research resource for complex physiologic signals. Circulation 101(23):e215-e220 (2000).
+
+## ⚖️ Data License & Attribution
+
+The **MIT-BIH Arrhythmia Database** is provided by PhysioNet and is available under the **ODC Attribution License (ODC-By)**.
+
+**Required Citations:**
+If you use this software in research, please cite the original data source:
+
+1.  **Goldberger, A., et al.** "PhysioBank, PhysioToolkit, and PhysioNet: Components of a new research resource for complex physiologic signals." *Circulation* 101.23 (2000): e215-e220.
+2.  **Moody, G. B., & Mark, R. G.** "The impact of the MIT-BIH Arrhythmia Database." *IEEE Engineering in Medicine and Biology Magazine* 20.3 (2001): 45-50.
+
+**Link to Original Data:** https://physionet.org/content/mitdb/
