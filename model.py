@@ -34,7 +34,6 @@ class HybridECGNet(nn.Module):
             nn.ReLU(),
             nn.MaxPool1d(2),
             
-            # SENIOR FIX: Adaptive Pooling
             # Forces output to (Batch, 128, 1) regardless of input length
             nn.AdaptiveAvgPool1d(1),
             nn.Flatten()

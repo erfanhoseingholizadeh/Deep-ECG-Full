@@ -3,7 +3,7 @@ from fastapi.testclient import TestClient
 from api import app
 import config
 
-# --- FIX: Use a fixture to manage the App Lifecycle ---
+
 @pytest.fixture(scope="module")
 def client():
     # The 'with' block forces the @app.on_event("startup") to run
@@ -79,7 +79,6 @@ def test_diagnostic_mode_logic(client):
         
         response = client.post("/predict", json=payload)
         
-        # Now that the model IS loaded, this should hit the validation logic
         # and return 400 (Bad Request), not 500.
         assert response.status_code == 400
         assert "Diagnostic Mode requires 'post_rr'" in response.json()["detail"]

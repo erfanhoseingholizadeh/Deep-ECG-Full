@@ -124,7 +124,6 @@ def train_engine():
     
     # --- CORRECTION: REMOVE EXPLICIT WEIGHTS ---
     # We rely on Gamma=2.0 to handle hard examples dynamically.
-    # Adding alpha=class_weights caused the gradient explosion.
     criterion = FocalLoss(alpha=None, gamma=2.0)
     
     optimizer = optim.Adam(model.parameters(), lr=config.LEARNING_RATE)

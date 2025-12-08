@@ -45,7 +45,7 @@ def predict_heartbeat(data: ECGInput):
     try:
         # Run Inference
         result = predictor.predict(
-            signal_window=data.signal, # <--- FIXED NAME
+            signal_window=data.signal,
             pre_rr=data.pre_rr,
             post_rr=data.post_rr
         )
@@ -53,7 +53,7 @@ def predict_heartbeat(data: ECGInput):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-# 4. Health Check (Standard for Docker/Kubernetes)
+# 4. Health Check
 @app.get("/health")
 def health_check():
     return {"status": "healthy", "mode": "Diagnostic" if config.DIAGNOSTIC_MODE else "Real-Time"}
