@@ -21,7 +21,7 @@ Unlike standard data science projects, this repository implements a complete **P
 
 ### 1. The Model (Hybrid CNN)
 A dual-stream neural network processing **Morphology** (Waveform shape) and **Rhythm** (Inter-beat timing).
-* **Robustness:** Implements **Adaptive Average Pooling** to handle variable signal lengths.
+* **Robustness:** Implements **Adaptive Average Pooling** to handle variable signal lengths without crashing.
 * **Optimization:** Dynamic Quantization reduces model size by **6x** compared to standard FP32 implementations.
 
 ### 2. Configuration Modes
@@ -39,16 +39,19 @@ git clone [https://github.com/erfanhoseingholizadeh/Deep-ECG-Full.git](https://g
 cd Deep-ECG-Full
 pip install -r requirements.txt
 
+
 Training the Brain
 Downloads MIT-BIH data, processes signals, and trains the model.
-python3 main.py
+python main.py
 Output: Saves hybrid_ecg_model.pth and generates performance charts in images/.
 
-utomated Testing
+
+Automated Testing
 Verifies the API, Model, and Config logic before deployment.
+Bash
 pytest
 
-Running the Application
+
 Option A: The API (Backend)
 Start the REST API to serve predictions via JSON.
 python api.py
@@ -57,65 +60,27 @@ Docs: Open http://localhost:8000/docs to test the API interactively.
 Option B: The Dashboard (Frontend)
 Launch the interactive web interface.
 streamlit run dashboard.py
-
 Features: Upload CSV files, generate synthetic hearts, and visualize predictions in real-time.
 
+
+Docker Deployment
 To run the entire suite in an isolated container:
 # 1. Build the image
 docker build -t deep-ecg .
-
 # 2. Run the container (Exposing API & Streamlit ports)
 docker run -p 8000:8000 -p 8501:8501 deep-ecg
 
-Metric,Result,Notes
-Accuracy,95.1%,Weighted average across all classes
-PVC Recall,90.0%,Sensitivity to Ventricular Ectopy (Class V)
-Inference Time,<15ms,On standard CPU (Quantized)
-Model Size,213 KB,Fits on embedded edge devices
-
 License & Attribution
+Software License
 MIT License - Copyright (c) 2023 Erfan Hoseingholizadeh.
 
-Data Source: MIT-BIH Arrhythmia Database (PhysioNet).
+Data License & Attribution
+The MIT-BIH Arrhythmia Database is provided by PhysioNet and is available under the ODC Attribution License (ODC-By).
 
-### 3. Quick Sanity Check for `Dockerfile`
-Since you are about to build the container, you need to update your `Dockerfile` as well. Your old one only ran `main.py`. A production Dockerfile needs to expose ports for your API and Dashboard.
+Required Citations: If you use this software in research, please cite the original data source:
 
-**Action:** Overwrite `Dockerfile` with this:
+Goldberger, A., et al. "PhysioBank, PhysioToolkit, and PhysioNet: Components of a new research resource for complex physiologic signals." Circulation 101.23 (2000): e215-e220.
 
-```dockerfile
-# 1. Base Image
-FROM python:3.9-slim
+Moody, G. B., & Mark, R. G. "The impact of the MIT-BIH Arrhythmia Database." IEEE Engineering in Medicine and Biology Magazine 20.3 (2001): 45-50.
 
-# 2. Environment Setup
-ENV PYTHONUNBUFFERED=1
-WORKDIR /app
-
-# 3. Dependencies
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
-# 4. Copy Code
-COPY . /app
-
-# 5. Expose Ports (8000 for API, 8501 for Streamlit)
-EXPOSE 8000
-EXPOSE 8501
-
-# 6. Default Command: Run the API Server
-# (You can override this to run 'python main.py' or 'streamlit run dashboard.py')
-CMD ["python", "api.py"]
-```
-
-
-## ⚖️ Data License & Attribution
-
-The **MIT-BIH Arrhythmia Database** is provided by PhysioNet and is available under the **ODC Attribution License (ODC-By)**.
-
-**Required Citations:**
-If you use this software in research, please cite the original data source:
-
-1.  **Goldberger, A., et al.** "PhysioBank, PhysioToolkit, and PhysioNet: Components of a new research resource for complex physiologic signals." *Circulation* 101.23 (2000): e215-e220.
-2.  **Moody, G. B., & Mark, R. G.** "The impact of the MIT-BIH Arrhythmia Database." *IEEE Engineering in Medicine and Biology Magazine* 20.3 (2001): 45-50.
-
-**Link to Original Data:** https://physionet.org/content/mitdb/
+Link to Original Data: https://physionet.org/content/mitdb/
