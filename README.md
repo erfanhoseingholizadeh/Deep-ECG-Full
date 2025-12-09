@@ -34,11 +34,19 @@ Controlled via `config.py` to support different clinical use cases:
 ## 🛠️ Usage Guide
 
 ### 1. Installation
+To run locally, setting up a virtual environment is **mandatory** on modern Linux systems (Ubuntu 24.04+).
+
 ```bash
+# 1. Clone the repo
 git clone [https://github.com/erfanhoseingholizadeh/Deep-ECG-Full.git](https://github.com/erfanhoseingholizadeh/Deep-ECG-Full.git)
 cd Deep-ECG-Full
-pip install -r requirements.txt
 
+# 2. Create and Activate Virtual Environment
+python3 -m venv venv
+source venv/bin/activate  # (Use `venv\Scripts\activate` on Windows)
+
+# 3. Install Dependencies
+pip install -r requirements.txt
 
 Training the Brain
 Downloads MIT-BIH data, processes signals, and trains the model.
