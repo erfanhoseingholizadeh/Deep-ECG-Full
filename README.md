@@ -1,94 +1,159 @@
-# Deep-ECG-Full: Clinical-Grade Arrhythmia Detection System 🫀⚡
+# 🫀 Deep-ECG: Clinical-Grade Arrhythmia Detection System
 
-![Python](https://img.shields.io/badge/Python-3.9-3776AB?style=flat&logo=python&logoColor=white)
-![PyTorch](https://img.shields.io/badge/PyTorch-EE4C2C?style=flat&logo=pytorch&logoColor=white)
-![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat&logo=fastapi&logoColor=white)
-![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?style=flat&logo=streamlit&logoColor=white)
-![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat&logo=docker&logoColor=white)
-
-## 📋 Executive Summary
-
-**Deep-ECG-Full** is an end-to-end Machine Learning Engineering pipeline designed to detect cardiac arrhythmias (specifically Ventricular Ectopy) from raw single-lead ECG signals.
-
-Unlike standard data science projects, this repository implements a complete **Production Lifecycle**:
-1.  **Robust Training:** Solves extreme class imbalance (1:200) using Weighted Focal Loss.
-2.  **Deployment Ready:** Features a quantized inference engine (200KB model size).
-3.  **Full-Stack Interface:** Includes a **REST API** (FastAPI) for integration and a **Live Dashboard** (Streamlit) for visualization.
+![Python](https://img.shields.io/badge/Python-3.12-3776AB?style=flat\&logo=python\&logoColor=white)
+![PyTorch](https://img.shields.io/badge/PyTorch-EE4C2C?style=flat\&logo=pytorch\&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat\&logo=fastapi\&logoColor=white)
+![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?style=flat\&logo=streamlit\&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat\&logo=docker\&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-green)
 
 ---
 
-## 🏗️ System Architecture
+## 📌 Overview
 
-### 1. The Model (Hybrid CNN)
-A dual-stream neural network processing **Morphology** (Waveform shape) and **Rhythm** (Inter-beat timing).
-* **Robustness:** Implements **Adaptive Average Pooling** to handle variable signal lengths without crashing.
-* **Optimization:** Dynamic Quantization reduces model size by **6x** compared to standard FP32 implementations.
+**Deep-ECG** is an **end-to-end, clinical-grade machine learning system** for detecting dangerous cardiac arrhythmias—specifically **Ventricular Ectopy (V)**—from **single-lead ECG signals**.
 
-### 2. Configuration Modes
-Controlled via `config.py` to support different clinical use cases:
-* **Diagnostic Mode:** Uses future context (1-beat lag) for maximum accuracy.
-* **Real-Time Mode:** Strictly causal (past data only) for instant wearable alerts.
+Unlike standard ML demos, this project is designed to **simulate a real production environment**, featuring:
+
+* A deployment-ready **REST API**
+* A **live interactive dashboard**
+* **Edge-optimized inference** suitable for low-resource devices
 
 ---
 
-## 🛠️ Usage Guide
+## 📂 Project Structure
 
-### 1. Installation
-To run locally, setting up a virtual environment is **mandatory** on modern Linux systems (Ubuntu 24.04+).
+```text
+Deep-ECG-Full/
+├── api.py                 # FastAPI backend (REST API)
+├── config.py              # Central configuration (hyperparameters, paths)
+├── dashboard.py           # Streamlit frontend (interactive demo)
+├── data_loader.py         # MIT-BIH downloader & signal preprocessing
+├── Dockerfile             # Production container setup
+├── inference.py           # Inference engine (preprocessing + prediction)
+├── LICENSE                # MIT license
+├── loss.py                # Custom weighted focal loss
+├── main.py                # Training loop & validation engine
+├── model.py               # Hybrid dual-stream NN (CNN + MLP)
+├── requirements.txt       # Python dependencies
+├── technical_report.md    # Detailed engineering documentation
+└── tests/                 # Automated unit tests
+```
+
+---
+
+## 🚀 Key Features
+
+### 🧠 Hybrid Architecture
+
+* **1D-CNN stream** for ECG morphology
+* **Dense (MLP) stream** for rhythm-level features
+* Feature fusion for holistic arrhythmia detection
+
+### ⚖️ Class Imbalance Handling
+
+* Custom **Weighted Focal Loss**
+* Effectively addresses severe **1:15 class imbalance**
+
+### ⚡ Edge Optimization
+
+* **Post-training INT8 quantization**
+* Final model size: **213 KB**
+
+### 🏗️ Production-Ready Stack
+
+* **FastAPI** backend for inference
+* **Streamlit** frontend for real-time visualization
+* Fully containerized with **Docker**
+
+---
+
+## 📊 Performance
+
+**Evaluation Dataset:** MIT-BIH Arrhythmia Database (held-out test set)
+
+|                Class | Precision |  Recall |
+| -------------------: | :-------: | :-----: |
+|           Normal (N) |    96%    |   99%   |
+|      Ventricular (V) |    95%    | **90%** |
+| Supraventricular (S) |    60%    |   16%   |
+
+> **Clinical Note**
+> The high **recall (90%)** for **Ventricular ectopy** demonstrates strong suitability for **screening dangerous ventricular events**, where missed detections are critical.
+
+---
+
+## 🛠️ Installation & Usage
+
+### 1️⃣ Local Setup (Linux / macOS / WSL)
+
+> ⚠️ Due to **PEP 668** on modern Linux distributions (e.g., Ubuntu 24.04+), a virtual environment is required.
 
 ```bash
-# 1. Clone the repo
-git clone [https://github.com/erfanhoseingholizadeh/Deep-ECG-Full.git](https://github.com/erfanhoseingholizadeh/Deep-ECG-Full.git)
+# Clone the repository
+git clone https://github.com/erfanhoseingholizadeh/Deep-ECG-Full.git
 cd Deep-ECG-Full
 
-# 2. Create and Activate Virtual Environment
+# Create & activate virtual environment
 python3 -m venv venv
-source venv/bin/activate  # (Use `venv\Scripts\activate` on Windows)
+source venv/bin/activate
 
-# 3. Install Dependencies
+# Install dependencies
 pip install -r requirements.txt
+```
 
-Training the Brain
-Downloads MIT-BIH data, processes signals, and trains the model.
+---
+
+### 2️⃣ Training the Model
+
+This step automatically downloads the **MIT-BIH dataset (~50 MB)** and starts training.
+
+```bash
 python main.py
-Output: Saves hybrid_ecg_model.pth and generates performance charts in images/.
+```
 
+---
 
-Automated Testing
-Verifies the API, Model, and Config logic before deployment.
-Bash
-pytest
+### 3️⃣ Running the Demo
 
+Launch the interactive dashboard to visualize predictions on real or synthetic ECG signals.
 
-Option A: The API (Backend)
-Start the REST API to serve predictions via JSON.
-python api.py
-Docs: Open http://localhost:8000/docs to test the API interactively.
-
-Option B: The Dashboard (Frontend)
-Launch the interactive web interface.
+```bash
 streamlit run dashboard.py
-Features: Upload CSV files, generate synthetic hearts, and visualize predictions in real-time.
+```
 
+---
 
-Docker Deployment
-To run the entire suite in an isolated container:
-# 1. Build the image
+## 🐳 Docker Deployment
+
+Run the entire system in an isolated container for **guaranteed reproducibility**.
+
+```bash
+# Build the image
 docker build -t deep-ecg .
-# 2. Run the container (Exposing API & Streamlit ports)
+
+# Run the container
 docker run -p 8000:8000 -p 8501:8501 deep-ecg
+```
 
-License & Attribution
-Software License
-MIT License - Copyright (c) 2023 Erfan Hoseingholizadeh.
+* **API Docs:** [http://localhost:8000/docs](http://localhost:8000/docs)
+* **Dashboard:** [http://localhost:8501](http://localhost:8501)
 
-Data License & Attribution
-The MIT-BIH Arrhythmia Database is provided by PhysioNet and is available under the ODC Attribution License (ODC-By).
+---
 
-Required Citations: If you use this software in research, please cite the original data source:
+## 📜 License & Attribution
 
-Goldberger, A., et al. "PhysioBank, PhysioToolkit, and PhysioNet: Components of a new research resource for complex physiologic signals." Circulation 101.23 (2000): e215-e220.
+### 🧾 License
 
-Moody, G. B., & Mark, R. G. "The impact of the MIT-BIH Arrhythmia Database." IEEE Engineering in Medicine and Biology Magazine 20.3 (2001): 45-50.
+This project is licensed under the **MIT License**.
 
-Link to Original Data: https://physionet.org/content/mitdb/
+### 📚 Data Attribution
+
+This project uses the **MIT-BIH Arrhythmia Database** provided by **PhysioNet**:
+
+* Moody GB, Mark RG. *The impact of the MIT-BIH Arrhythmia Database.* IEEE Eng Med Biol, 20(3):45–50 (2001).
+* Goldberger AL, et al. *PhysioBank, PhysioToolkit, and PhysioNet.* Circulation, 101(23):e215–e220 (2000).
+
+---
+
+⭐ If you find this project useful, consider giving it a star!
