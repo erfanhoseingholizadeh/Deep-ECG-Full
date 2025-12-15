@@ -11,13 +11,13 @@
 
 ## 📌 Overview
 
-**Deep-ECG** is an **end-to-end, clinical-grade machine learning system** for detecting dangerous cardiac arrhythmias—specifically **Ventricular Ectopy (V)**—from **single-lead ECG signals**.
+**Deep-ECG** is an end-to-end **machine learning system** for detecting **dangerous cardiac arrhythmias**, with a focus on **Ventricular Ectopy (V)**, using **single-lead ECG signals**.
 
-Unlike standard ML demos, this project is designed to **simulate a real production environment**, featuring:
+Unlike typical data science projects, Deep-ECG is engineered to **simulate a real clinical production environment**, featuring:
 
 * A deployment-ready **REST API**
 * A **live interactive dashboard**
-* **Edge-optimized inference** suitable for low-resource devices
+* **Edge-optimized inference** for low-resource devices
 
 ---
 
@@ -34,7 +34,7 @@ Deep-ECG-Full/
 ├── LICENSE                # MIT license
 ├── loss.py                # Custom weighted focal loss
 ├── main.py                # Training loop & validation engine
-├── model.py               # Hybrid dual-stream NN (CNN + MLP)
+├── model.py               # Hybrid dual-stream neural network (CNN + MLP)
 ├── requirements.txt       # Python dependencies
 ├── technical_report.md    # Detailed engineering documentation
 └── tests/                 # Automated unit tests
@@ -44,11 +44,16 @@ Deep-ECG-Full/
 
 ## 🚀 Key Features
 
+### 🧪 Robust Signal Processing
+
+* Zero-phase **Butterworth bandpass filtering (0.5–50 Hz)**
+* Removes baseline wander and powerline noise **without phase distortion**
+
 ### 🧠 Hybrid Architecture
 
-* **1D-CNN stream** for ECG morphology
-* **Dense (MLP) stream** for rhythm-level features
-* Feature fusion for holistic arrhythmia detection
+* **1D-CNN** branch for ECG morphology
+* **Dense (MLP)** branch for rhythm-level features
+* Feature fusion for holistic diagnosis
 
 ### ⚖️ Class Imbalance Handling
 
@@ -60,7 +65,7 @@ Deep-ECG-Full/
 * **Post-training INT8 quantization**
 * Final model size: **213 KB**
 
-### 🏗️ Production-Ready Stack
+### 🏗️ Production Interface
 
 * **FastAPI** backend for inference
 * **Streamlit** frontend for real-time visualization
@@ -79,7 +84,7 @@ Deep-ECG-Full/
 | Supraventricular (S) |    60%    |   16%   |
 
 > **Clinical Note**
-> The high **recall (90%)** for **Ventricular ectopy** demonstrates strong suitability for **screening dangerous ventricular events**, where missed detections are critical.
+> The high **recall (90%)** for ventricular ectopy demonstrates strong suitability for **screening dangerous ventricular beats**, where missed detections are critical.
 
 ---
 
@@ -106,7 +111,7 @@ pip install -r requirements.txt
 
 ### 2️⃣ Training the Model
 
-This step automatically downloads the **MIT-BIH dataset (~50 MB)** and starts training.
+Automatically downloads the **MIT-BIH dataset (~50 MB)** and starts training.
 
 ```bash
 python main.py
@@ -116,7 +121,7 @@ python main.py
 
 ### 3️⃣ Running the Demo
 
-Launch the interactive dashboard to visualize predictions on real or synthetic ECG signals.
+Launch the interactive dashboard to visualize predictions on real or synthetic ECG data.
 
 ```bash
 streamlit run dashboard.py
