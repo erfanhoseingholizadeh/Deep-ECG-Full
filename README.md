@@ -36,8 +36,7 @@ Deep-ECG-Full/
 ├── main.py                # Training loop & validation engine
 ├── model.py               # Hybrid dual-stream neural network (CNN + MLP)
 ├── requirements.txt       # Python dependencies
-├── technical_report.md    # Detailed engineering documentation
-└── tests/                 # Automated unit tests
+└── technical_report.md    # Detailed engineering documentation
 ```
 
 ---
